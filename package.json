@@ -1,0 +1,46 @@
+{
+  "name": "jwccminify",
+  "version": "1.0.0",
+  "description": "A lightweight JSON minifier that removes whitespace and comments from JWCC (JSON with Commas and Comments)",
+  "keywords": [
+    "json",
+    "jwcc",
+    "hujson",
+    "jsonc",
+    "minify",
+    "simplify",
+    "stringify",
+    "format",
+    "comments"
+  ],
+  "author": "Ganlv",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/jwccminify.cjs",
+  "exports": {
+    ".": {
+      "require": "./dist/jwccminify.cjs",
+      "import": "./dist/jwccminify.mjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "test": "vitest --run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ganlvtech/jwccminify-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ganlvtech/jwccminify-js/issues"
+  },
+  "homepage": "https://github.com/ganlvtech/jwccminify-js#readme",
+  "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "rollup": "^4.56.0",
+    "vitest": "^4.0.18"
+  }
+}

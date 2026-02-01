@@ -1,0 +1,66 @@
+name: Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      doRelease:
+        description: 'Publish new release'
+        type: boolean
+        default: false
+        required: false
+      publishToNpm:
+        description: 'Publish to npm registry'
+        type: boolean
+        default: false
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Pack package
+        run: mkdir -p ./artifacts && npm pack --pack-destination ./artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: npm-package
+          overwrite: true
+          path: artifacts/*
+
+      - name: Get package.json version
+        id: get_version
+        run: echo "package_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Upload artifacts to GitHub Release
+        if: ${{ github.event.inputs.doRelease == 'true' }}
+        run: |
+          TAGNAME="v${{ steps.get_version.outputs.package_version }}"
+          gh release delete --cleanup-tag --yes "$TAGNAME" || true
+          sleep 5
+          gh release create "$TAGNAME" --target "${{ github.ref }}" --title "$TAGNAME" artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Publish to npm
+        if: ${{ github.event.inputs.publishToNpm == 'true' }}
+        run: npm publish
